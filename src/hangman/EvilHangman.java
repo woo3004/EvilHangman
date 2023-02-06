@@ -13,8 +13,7 @@ public class EvilHangman {
         int solved = 0;
         int compare = 0;
         Scanner input = new Scanner(System.in);
-        char guess;
-        boolean flag = false;
+        String guess;
         EvilHangmanGame evil = new EvilHangmanGame();
         evil.startGame(file, wordLength);
         while(life != 0) {
@@ -23,31 +22,47 @@ public class EvilHangman {
             System.out.println("Word: " + evil.getSubKey());
             boolean repeat = true;
             while(repeat) {
+                boolean flag = true;
                 System.out.print("Enter guess: ");
-                guess = input.next().charAt(0);
+                guess = input.next().toLowerCase();
+                while (guess.length() != 1 || guess.charAt(0) < 'a' || guess.charAt(0) > 'z') {
+                    System.out.print("Invalid input! Enter guess: ");
+                    guess = guess = input.next().toLowerCase();
+                }
                 try {
-                    evil.makeGuess(guess);
+                    evil.makeGuess(guess.charAt(0));
                     repeat = false;
                 } catch (GuessAlreadyMadeException ex) {
                     ex.GuessAlreadyMadeError();
+                    flag = false;
                 }
                 for (char c : evil.getSubKey().toCharArray()) {
-                    if (guess == c) {
+                    if (guess.charAt(0) == c) {
                         solved++;
                     }
                 }
-                if (compare == solved) {
+                if (compare == solved && flag) {
                     life--;
-                } else {
-                    compare = solved;
+                    if(life == 0) {
+                        System.out.println("Sorry, there are no " + guess);
+                    } else {
+                        System.out.println("Sorry, there are no " + guess + "\n");
+                    }
+                }
+                if (compare != solved && flag) {
+                    if(solved == wordLength) {
+                        System.out.println("Yes, there is " + (solved - compare) + " " + guess);
+                    } else {
+                        System.out.println("Yes, there is " + (solved - compare) + " " + guess + "\n");
+                        compare = solved;
+                    }
                 }
             }
-            if(!evil.getSubKey().contains("-")) {
-                flag = true;
+            if(solved == wordLength) {
                 break;
             }
         }
-        if(flag) {
+        if(solved == wordLength) {
             System.out.println("You win! You guessed the word: " + evil.getSubKey());
         } else {
             System.out.println("Sorry, you lost! The word was: " + evil.getWordSet());
